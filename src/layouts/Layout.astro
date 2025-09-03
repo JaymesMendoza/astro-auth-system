@@ -1,0 +1,56 @@
+---
+export interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "Secure authentication and user management system" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+  </head>
+  <body class="min-h-screen bg-background text-foreground">
+    <slot />
+    <script>
+      // Theme handling
+      const getTheme = () => {
+        const stored = localStorage.getItem('theme');
+        if (stored) return stored;
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      };
+
+      const applyTheme = (theme: string) => {
+        document.documentElement.classList.toggle('dark', theme === 'dark');
+        localStorage.setItem('theme', theme);
+      };
+
+      // Initialize theme
+      applyTheme(getTheme());
+
+      // Listen for theme changes
+      window.addEventListener('theme-change', (event) => {
+        const customEvent = event as CustomEvent<{ theme: string }>;
+        applyTheme(customEvent.detail.theme);
+      });
+
+      // Make theme toggle function globally available
+      (window as any).toggleTheme = () => {
+        const currentTheme = getTheme();
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        applyTheme(newTheme);
+        window.dispatchEvent(new CustomEvent('theme-change', { detail: { theme: newTheme } }));
+      };
+    </script>
+  </body>
+</html>
+
+<style>
+  @import url('@/styles/globals.css');
+</style>

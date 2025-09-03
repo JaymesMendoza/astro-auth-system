@@ -1,0 +1,64 @@
+---
+export interface Props {
+  id: string;
+  name: string;
+  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url';
+  placeholder?: string;
+  required?: boolean;
+  disabled?: boolean;
+  value?: string;
+  error?: string;
+  label?: string;
+  class?: string;
+}
+
+const { 
+  id,
+  name,
+  type = 'text',
+  placeholder,
+  required = false,
+  disabled = false,
+  value,
+  error,
+  label,
+  class: className = '',
+  ...rest 
+} = Astro.props;
+
+const baseClasses = 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
+
+const errorClasses = error ? 'border-destructive focus-visible:ring-destructive' : '';
+
+const classes = `${baseClasses} ${errorClasses} ${className}`;
+---
+
+<div class="space-y-2">
+  {label && (
+    <label 
+      for={id} 
+      class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+    >
+      {label}
+      {required && <span class="text-destructive">*</span>}
+    </label>
+  )}
+  
+  <input
+    id={id}
+    name={name}
+    type={type}
+    placeholder={placeholder}
+    required={required}
+    disabled={disabled}
+    value={value}
+    class={classes}
+    {...rest}
+  />
+  
+  {error && (
+    <p class="text-sm text-destructive">
+      {error}
+    </p>
+  )}
+</div>

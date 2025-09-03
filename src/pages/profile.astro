@@ -1,0 +1,359 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Navigation from '@/components/layout/Navigation.astro';
+import Card from '@/components/ui/Card.astro';
+import Input from '@/components/ui/Input.astro';
+import Button from '@/components/ui/Button.astro';
+import { getAuthContext } from '@/utils/auth';
+
+// This page requires authentication (enforced by middleware)
+const auth = await getAuthContext(Astro);
+
+// Just for extra safety, though middleware should handle this
+if (!auth.isAuthenticated || !auth.user) {
+  return Astro.redirect('/auth/login');
+}
+
+const user = auth.user;
+---
+
+<Layout title="Profile - AuthSystem">
+  <Navigation auth={auth} />
+  
+  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
+      <!-- Header -->
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Profile Settings</h1>
+        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          Manage your account information and preferences.
+        </p>
+      </div>
+
+      <div class="space-y-6">
+        <!-- Profile Information -->
+        <Card title="Profile Information" description="Update your personal information.">
+          <form id="profile-form" class="space-y-6">
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <Input
+                id="firstName"
+                name="firstName"
+                type="text"
+                label="First name"
+                value={user.firstName}
+                required
+              />
+
+              <Input
+                id="lastName"
+                name="lastName"
+                type="text"
+                label="Last name"
+                value={user.lastName}
+                required
+              />
+            </div>
+
+            <Input
+              id="username"
+              name="username"
+              type="text"
+              label="Username"
+              value={user.username}
+              required
+            />
+
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              label="Email address"
+              value={user.email}
+              disabled
+              class="bg-gray-50 dark:bg-gray-800"
+            />
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Email address cannot be changed. Contact support if you need to update your email.
+            </p>
+
+            <div id="profile-message" class="hidden">
+              <div id="profile-message-content" class="rounded-md p-4">
+                <div class="flex">
+                  <div class="flex-shrink-0">
+                    <svg id="profile-success-icon" class="h-5 w-5 text-green-400 hidden" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                    <svg id="profile-error-icon" class="h-5 w-5 text-red-400 hidden" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                  <div class="ml-3">
+                    <p id="profile-message-text" class="text-sm"></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-end">
+              <Button type="submit" variant="primary" id="profile-submit-btn">
+                Update Profile
+              </Button>
+            </div>
+          </form>
+        </Card>
+
+        <!-- Password Change -->
+        <Card title="Change Password" description="Update your password to keep your account secure.">
+          <form id="password-form" class="space-y-6">
+            <Input
+              id="currentPassword"
+              name="currentPassword"
+              type="password"
+              label="Current password"
+              required
+            />
+
+            <Input
+              id="newPassword"
+              name="newPassword"
+              type="password"
+              label="New password"
+              required
+            />
+
+            <Input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              label="Confirm new password"
+              required
+            />
+
+            <div id="password-message" class="hidden">
+              <div id="password-message-content" class="rounded-md p-4">
+                <div class="flex">
+                  <div class="flex-shrink-0">
+                    <svg id="password-success-icon" class="h-5 w-5 text-green-400 hidden" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                    <svg id="password-error-icon" class="h-5 w-5 text-red-400 hidden" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                  <div class="ml-3">
+                    <p id="password-message-text" class="text-sm"></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-end">
+              <Button type="submit" variant="primary" id="password-submit-btn">
+                Change Password
+              </Button>
+            </div>
+          </form>
+        </Card>
+
+        <!-- Account Information -->
+        <Card title="Account Information" description="View your account details and status.">
+          <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+            <div>
+              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Account Status</dt>
+              <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.isActive ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`}>
+                  {user.isActive ? 'Active' : 'Inactive'}
+                </span>
+              </dd>
+            </div>
+
+            <div>
+              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Email Verification</dt>
+              <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.isVerified ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'}`}>
+                  {user.isVerified ? 'Verified' : 'Pending'}
+                </span>
+              </dd>
+            </div>
+
+            <div>
+              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Account Role</dt>
+              <dd class="mt-1 text-sm text-gray-900 dark:text-white capitalize">
+                <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.role === 'admin' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'}`}>
+                  {user.role}
+                </span>
+              </dd>
+            </div>
+
+            <div>
+              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Member Since</dt>
+              <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                {new Date(user.createdAt * 1000).toLocaleDateString()}
+              </dd>
+            </div>
+
+            <div>
+              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Last Login</dt>
+              <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                {user.lastLoginAt ? new Date(user.lastLoginAt * 1000).toLocaleString() : 'Never'}
+              </dd>
+            </div>
+          </dl>
+        </Card>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Profile form handling
+    const profileForm = document.getElementById('profile-form') as HTMLFormElement;
+    const profileMessage = document.getElementById('profile-message') as HTMLElement;
+    const profileMessageContent = document.getElementById('profile-message-content') as HTMLElement;
+    const profileMessageText = document.getElementById('profile-message-text') as HTMLElement;
+    const profileSuccessIcon = document.getElementById('profile-success-icon') as HTMLElement;
+    const profileErrorIcon = document.getElementById('profile-error-icon') as HTMLElement;
+    const profileSubmitBtn = document.getElementById('profile-submit-btn') as HTMLButtonElement;
+
+    function showProfileMessage(message: string, isSuccess: boolean) {
+      profileMessageText.textContent = message;
+      profileMessage.classList.remove('hidden');
+      
+      if (isSuccess) {
+        profileMessageContent.className = 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md p-4';
+        profileMessageText.className = 'text-sm text-green-800 dark:text-green-200';
+        profileSuccessIcon.classList.remove('hidden');
+        profileErrorIcon.classList.add('hidden');
+      } else {
+        profileMessageContent.className = 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4';
+        profileMessageText.className = 'text-sm text-red-800 dark:text-red-200';
+        profileSuccessIcon.classList.add('hidden');
+        profileErrorIcon.classList.remove('hidden');
+      }
+    }
+
+    function hideProfileMessage() {
+      profileMessage.classList.add('hidden');
+    }
+
+    profileForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideProfileMessage();
+
+      const formData = new FormData(profileForm);
+      const data = {
+        firstName: formData.get('firstName') as string,
+        lastName: formData.get('lastName') as string,
+        username: formData.get('username') as string,
+      };
+
+      profileSubmitBtn.disabled = true;
+      profileSubmitBtn.textContent = 'Updating...';
+
+      try {
+        const response = await fetch('/api/user/profile', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          showProfileMessage(result.message || 'Profile updated successfully!', true);
+        } else {
+          showProfileMessage(result.error || 'Failed to update profile.', false);
+        }
+      } catch (error) {
+        showProfileMessage('Network error. Please try again.', false);
+      } finally {
+        profileSubmitBtn.disabled = false;
+        profileSubmitBtn.textContent = 'Update Profile';
+      }
+    });
+
+    // Password form handling
+    const passwordForm = document.getElementById('password-form') as HTMLFormElement;
+    const passwordMessage = document.getElementById('password-message') as HTMLElement;
+    const passwordMessageContent = document.getElementById('password-message-content') as HTMLElement;
+    const passwordMessageText = document.getElementById('password-message-text') as HTMLElement;
+    const passwordSuccessIcon = document.getElementById('password-success-icon') as HTMLElement;
+    const passwordErrorIcon = document.getElementById('password-error-icon') as HTMLElement;
+    const passwordSubmitBtn = document.getElementById('password-submit-btn') as HTMLButtonElement;
+
+    function showPasswordMessage(message: string, isSuccess: boolean) {
+      passwordMessageText.textContent = message;
+      passwordMessage.classList.remove('hidden');
+      
+      if (isSuccess) {
+        passwordMessageContent.className = 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md p-4';
+        passwordMessageText.className = 'text-sm text-green-800 dark:text-green-200';
+        passwordSuccessIcon.classList.remove('hidden');
+        passwordErrorIcon.classList.add('hidden');
+      } else {
+        passwordMessageContent.className = 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4';
+        passwordMessageText.className = 'text-sm text-red-800 dark:text-red-200';
+        passwordSuccessIcon.classList.add('hidden');
+        passwordErrorIcon.classList.remove('hidden');
+      }
+    }
+
+    function hidePasswordMessage() {
+      passwordMessage.classList.add('hidden');
+    }
+
+    passwordForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hidePasswordMessage();
+
+      const formData = new FormData(passwordForm);
+      const newPassword = formData.get('newPassword') as string;
+      const confirmPassword = formData.get('confirmPassword') as string;
+
+      // Client-side validation
+      if (newPassword !== confirmPassword) {
+        showPasswordMessage('New passwords do not match.', false);
+        return;
+      }
+
+      if (newPassword.length < 8) {
+        showPasswordMessage('New password must be at least 8 characters long.', false);
+        return;
+      }
+
+      const data = {
+        currentPassword: formData.get('currentPassword') as string,
+        newPassword: newPassword,
+        confirmPassword: confirmPassword,
+      };
+
+      passwordSubmitBtn.disabled = true;
+      passwordSubmitBtn.textContent = 'Changing...';
+
+      try {
+        const response = await fetch('/api/user/change-password', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          showPasswordMessage(result.message || 'Password changed successfully!', true);
+          passwordForm.reset();
+        } else {
+          showPasswordMessage(result.error || 'Failed to change password.', false);
+        }
+      } catch (error) {
+        showPasswordMessage('Network error. Please try again.', false);
+      } finally {
+        passwordSubmitBtn.disabled = false;
+        passwordSubmitBtn.textContent = 'Change Password';
+      }
+    });
+  </script>
+</Layout>

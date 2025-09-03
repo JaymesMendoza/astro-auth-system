@@ -1,0 +1,226 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Navigation from '@/components/layout/Navigation.astro';
+import Card from '@/components/ui/Card.astro';
+import Button from '@/components/ui/Button.astro';
+import { getAuthContext } from '@/utils/auth';
+
+// This page requires authentication (enforced by middleware)
+const auth = await getAuthContext(Astro);
+
+// Just for extra safety, though middleware should handle this
+if (!auth.isAuthenticated || !auth.user) {
+  return Astro.redirect('/auth/login');
+}
+
+const user = auth.user;
+---
+
+<Layout title="Dashboard - AuthSystem">
+  <Navigation auth={auth} />
+  
+  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <!-- Header -->
+      <div class="md:flex md:items-center md:justify-between mb-8">
+        <div class="flex-1 min-w-0">
+          <h2 class="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
+            Welcome back, {user.firstName}!
+          </h2>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Here's what's happening with your account today.
+          </p>
+        </div>
+        <div class="mt-4 flex md:mt-0 md:ml-4">
+          <a href="/profile">
+            <Button variant="outline">
+              Edit Profile
+            </Button>
+          </a>
+          {auth.isAdmin && (
+            <a href="/admin" class="ml-3">
+              <Button variant="primary">
+                Admin Panel
+              </Button>
+            </a>
+          )}
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 mb-8">
+        <!-- Account Status -->
+        <Card title="Account Status" class="bg-white dark:bg-gray-800">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class={`w-8 h-8 rounded-full flex items-center justify-center ${user.isVerified ? 'bg-green-100 dark:bg-green-900' : 'bg-yellow-100 dark:bg-yellow-900'}`}>
+                {user.isVerified ? (
+                  <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                ) : (
+                  <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                )}
+              </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                  Verification Status
+                </dt>
+                <dd class="text-lg font-medium text-gray-900 dark:text-white">
+                  {user.isVerified ? 'Verified' : 'Pending'}
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </Card>
+
+        <!-- Role -->
+        <Card title="Account Role" class="bg-white dark:bg-gray-800">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class={`w-8 h-8 rounded-full flex items-center justify-center ${user.role === 'admin' ? 'bg-purple-100 dark:bg-purple-900' : 'bg-blue-100 dark:bg-blue-900'}`}>
+                <svg class={`w-5 h-5 ${user.role === 'admin' ? 'text-purple-600 dark:text-purple-400' : 'text-blue-600 dark:text-blue-400'}`} fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
+                </svg>
+              </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                  User Role
+                </dt>
+                <dd class="text-lg font-medium text-gray-900 dark:text-white capitalize">
+                  {user.role}
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </Card>
+
+        <!-- Member Since -->
+        <Card title="Member Since" class="bg-white dark:bg-gray-800">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                </svg>
+              </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                  Join Date
+                </dt>
+                <dd class="text-lg font-medium text-gray-900 dark:text-white">
+                  {new Date(user.createdAt * 1000).toLocaleDateString()}
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      <!-- Profile Overview -->
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <!-- Profile Information -->
+        <Card title="Profile Information" class="bg-white dark:bg-gray-800">
+          <div class="space-y-4">
+            <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:py-2">
+              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Full name
+              </dt>
+              <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                {user.firstName} {user.lastName}
+              </dd>
+            </div>
+            <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:py-2">
+              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Username
+              </dt>
+              <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                {user.username}
+              </dd>
+            </div>
+            <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:py-2">
+              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Email address
+              </dt>
+              <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                {user.email}
+              </dd>
+            </div>
+            <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:py-2">
+              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Last login
+              </dt>
+              <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                {user.lastLoginAt ? new Date(user.lastLoginAt * 1000).toLocaleString() : 'Never'}
+              </dd>
+            </div>
+          </div>
+          <div class="mt-6">
+            <a href="/profile">
+              <Button variant="primary" class="w-full sm:w-auto">
+                Edit Profile
+              </Button>
+            </a>
+          </div>
+        </Card>
+
+        <!-- Quick Actions -->
+        <Card title="Quick Actions" class="bg-white dark:bg-gray-800">
+          <div class="space-y-4">
+            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                Security Settings
+              </h4>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                Manage your password and security preferences.
+              </p>
+              <a href="/profile/security">
+                <Button variant="outline" size="sm">
+                  Change Password
+                </Button>
+              </a>
+            </div>
+
+            {!user.isVerified && (
+              <div class="border border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4">
+                <h4 class="text-sm font-medium text-yellow-800 dark:text-yellow-200 mb-2">
+                  Verify Your Email
+                </h4>
+                <p class="text-sm text-yellow-700 dark:text-yellow-300 mb-4">
+                  Please verify your email address to secure your account.
+                </p>
+                <Button variant="outline" size="sm" class="border-yellow-300 text-yellow-800 hover:bg-yellow-100 dark:border-yellow-700 dark:text-yellow-200">
+                  Resend Verification
+                </Button>
+              </div>
+            )}
+
+            {auth.isAdmin && (
+              <div class="border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
+                <h4 class="text-sm font-medium text-purple-800 dark:text-purple-200 mb-2">
+                  Administrator Tools
+                </h4>
+                <p class="text-sm text-purple-700 dark:text-purple-300 mb-4">
+                  Access admin panel to manage users and system settings.
+                </p>
+                <a href="/admin">
+                  <Button variant="primary" size="sm" class="bg-purple-600 hover:bg-purple-700">
+                    Open Admin Panel
+                  </Button>
+                </a>
+              </div>
+            )}
+          </div>
+        </Card>
+      </div>
+    </div>
+  </main>
+</Layout>
